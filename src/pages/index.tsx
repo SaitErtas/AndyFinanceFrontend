@@ -94,7 +94,7 @@ type DashboardItem = {
 
 
 
-const deployedContractAddress = process.env.ANDY_FINANCE_ADDRESS as string
+const deployedContractAddress = process.env.NEXT_PUBLIC_ANDY_FINANCE_ADDRESS as string
 const Home = () => {
   const [isLoading, setLoading] = useState(false)
   const { t } = useTranslation()
@@ -141,9 +141,7 @@ const Home = () => {
       async function template() {
         const providerEther = await new BrowserProvider(window.ethereum)
         const signer = await providerEther.getSigner()
-        const deployedContractAddress2 = process.env.NEXT_PUBLIC_ANDY_FINANCE_ADDRESS
-        console.log("deployedContractAddress2", deployedContractAddress2)
-        const contractEther = await new ContractEthers(deployedContractAddress2, bnbAndyFinanceContract.abi, signer);
+        const contractEther = await new ContractEthers(deployedContractAddress, bnbAndyFinanceContract.abi, signer);
 
         //const walletBalance = await providerEther.getBalance(provider.selectedAddress)
         //setWalletBalance(walletBalance)

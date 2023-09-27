@@ -98,10 +98,12 @@ const Home = () => {
     () => {
       const provider = window.ethereum; //new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545");
       async function template() {
+        setLoading(true);
         const providerEther = await new BrowserProvider(window.ethereum)
         const signer = await providerEther.getSigner()
         const contractEther = await new ContractEthers(deployedContractAddress, bnbAndyFinanceContract.abi, signer);
         setStateEther({ providerEther: providerEther, provider: provider, signer: signer, contract: contractEther, walletAddress: provider.selectedAddress });
+        setLoading(false);
       }
       provider && template();
     }

@@ -2,48 +2,6 @@
 // const Home = () => {
 //   return <>Home Page</>
 // }
-
-// export default Home
-// // ** React Imports
-// import { useEffect } from 'react'
-
-// // ** Next Imports
-// import { useRouter } from 'next/router'
-
-// // ** Spinner Import
-// import Spinner from 'src/@core/components/spinner'
-
-// // ** Hook Imports
-// import { useAuth } from 'src/hooks/useAuth'
-
-// /**
-//  *  Set Home URL based on User Roles
-//  */
-// export const getHomeRoute = (role: string) => {
-//   if (role === 'client') return '/acl'
-//   else return '/dashboards/monifi'
-// }
-
-// const Home = () => {
-//   // ** Hooks
-//   const auth = useAuth()
-//   const router = useRouter()
-
-//   useEffect(() => {
-//     if (!router.isReady) return
-
-//     if (auth.user && auth.user.role) {
-//       const homeRoute = getHomeRoute(auth.user.role)
-
-//       // Redirect user to Home URL
-//       router.replace(homeRoute)
-//     }
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, [router.isReady])
-
-//   return <Spinner />
-// }
-
 // export default Home
 
 
@@ -97,6 +55,7 @@ type DashboardItem = {
 const deployedContractAddress = process.env.NEXT_PUBLIC_ANDY_FINANCE_ADDRESS as string
 const Home = () => {
   const [isLoading, setLoading] = useState(false)
+  const [isLoadingForDeposit, setIsLoadingForDeposit] = useState(false)
   const { t } = useTranslation()
   const [stateEther, setStateEther] = useState<UserEther>({
     providerEther: null,
@@ -142,9 +101,6 @@ const Home = () => {
         const providerEther = await new BrowserProvider(window.ethereum)
         const signer = await providerEther.getSigner()
         const contractEther = await new ContractEthers(deployedContractAddress, bnbAndyFinanceContract.abi, signer);
-
-        //const walletBalance = await providerEther.getBalance(provider.selectedAddress)
-        //setWalletBalance(walletBalance)
         setStateEther({ providerEther: providerEther, provider: provider, signer: signer, contract: contractEther, walletAddress: provider.selectedAddress });
       }
       provider && template();
@@ -222,7 +178,6 @@ const Home = () => {
   }
 
   async function investEtherJs() {
-    setLoading(true);
     const etherValue = parseUnits("" + depositValue, 18);
 
     console.log(etherValue);
@@ -232,7 +187,6 @@ const Home = () => {
     await totalDeposit.wait();
 
     await GetDashboardItem();
-    setLoading(false);
   }
 
   async function setDepositValueToInvest(ratio: number) {
@@ -321,7 +275,7 @@ const Home = () => {
           </Grid>
 
           <Grid item xs={12} >
-            <Card >
+            <Card>
               <CardContent >
                 <Grid container xs={12} sx={{ justifyContent: 'center' }}>
                   <Grid item xs={4} >
@@ -491,9 +445,8 @@ const Home = () => {
                         variant='contained'
                         color='warning'
                         sx={{ margin: 1, width: "170px" }}
-                        onClick={() => {
-                          investEtherJs()
-
+                        onClick={async () => {
+                          await investEtherJs()
                         }}
                       >
                         {t('Harvest').toString()}
@@ -506,7 +459,7 @@ const Home = () => {
                         color='info'
                         sx={{ margin: 1, width: "170px" }}
                         onClick={() => {
-                          investEtherJs()
+                          //investEtherJs()
                         }}
                       >
                         {t('Calculate Reward').toString()}
@@ -613,11 +566,25 @@ const Home = () => {
                         color='secondary'
                         sx={{ margin: 1, width: "170px" }}
                         onClick={() => {
-                          investEtherJs()
+                          //investEtherJs()
                         }}
                       >
                         {t('Insurance').toString()}
                       </Button>
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+
+          <Grid container sx={{ mt: 2, justifyContent: 'center' }}>
+            <Grid item sx={{ mr: 2 }}>
+              <Card>
+                <CardContent >
+                  <Box sx={{ height: "19px" }}>
+                    <Typography variant="body1" sx={{}}>
+                      Affiliate Program
                     </Typography>
                   </Box>
                 </CardContent>
@@ -705,7 +672,7 @@ const Home = () => {
                         color='secondary'
                         sx={{ margin: 1, width: "170px" }}
                         onClick={() => {
-                          investEtherJs()
+                          //investEtherJs()
                         }}
                       >
                         {t('Harvest').toString()}
@@ -716,7 +683,7 @@ const Home = () => {
               </Card>
             </Grid>
           </Grid>
-
+          {/* 
           <Grid item xs={4}>
             <Button
               size='large'
@@ -742,7 +709,7 @@ const Home = () => {
             >
               {t('Refresh Values').toString()}
             </Button>
-          </Grid>
+          </Grid> */}
         </Grid>
       )}
 
@@ -806,10 +773,21 @@ const Home = () => {
           </Box>{' '}
         </DialogContent>
         <DialogActions sx={{ pb: { xs: 8, sm: 12.5 }, justifyContent: 'center' }}>
-          <Button variant='contained' sx={{ width: "100%" }} color='primary' onClick={async () => await investDeposit()}>
-            {t('Deposit').toString()}
-          </Button>
-
+          {isLoadingForDeposit && (
+            <Fragment>
+              <CircularProgress color='inherit' size={20} />
+            </Fragment>
+          )}
+          {!isLoadingForDeposit && (
+            <Button variant='contained' sx={{ width: "100%" }} color='primary' onClick={async () => {
+              setIsLoadingForDeposit(true);
+              await investDeposit();
+              setIsLoadingForDeposit(false);
+            }
+            }>
+              {t('Deposit').toString()}
+            </Button>
+          )}
 
         </DialogActions>
       </Dialog>

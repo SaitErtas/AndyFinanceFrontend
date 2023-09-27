@@ -97,6 +97,7 @@ const Home = () => {
   useEffect(
     () => {
       const provider = window.ethereum; //new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545");
+      console.log()
       async function template() {
         setLoading(true);
         const providerEther = await new BrowserProvider(window.ethereum)
@@ -256,13 +257,37 @@ const Home = () => {
     //   </CardContent>
     // </Card>
 
+
+
     <Fragment >
       {isLoading && (
         <Fragment>
           <CircularProgress color='inherit' size={20} />
         </Fragment>
       )}
-      {!isLoading && stateEther && stateEther.contract && dashboardItem && (
+
+      {/* {!(window.ethereum) && (
+        <Fragment>
+
+          <Grid container spacing={6} sx={{ mt: 2, p: 3 }}>
+            <Grid item xs={12}>
+              <Card>
+                <CardContent>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="body1" sx={{}}>
+                      Plase install Wallet Provider
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+
+
+        </Fragment>
+      )} */}
+
+      {!isLoading && dashboardItem && (
         <Grid container spacing={6} sx={{ mt: 2, p: 3 }}>
           <Grid item xs={12}>
             <Card>

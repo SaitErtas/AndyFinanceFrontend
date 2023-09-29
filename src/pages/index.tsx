@@ -9,13 +9,15 @@
 import { useState, useEffect, Fragment, ReactNode } from 'react'
 import { BrowserProvider, Contract as ContractEthers, formatEther, parseUnits } from 'ethers'
 import bnbAndyFinanceContract from 'src/contract/BnbAndyFinance.json'
-
-
 import { useTranslation } from 'react-i18next'
 import { CircularProgress, Button, Grid, TextField, Box, Typography, Card, CardContent, Dialog, DialogActions, DialogContent } from '@mui/material'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import CustomChip from 'src/@core/components/mui/chip'
+import WagmiComponent from './WagmiComponent'
 
+
+import { useAccount, useContract, useBalance } from 'wagmi'
+import { useWeb3ModalState } from '@web3modal/wagmi/react'
 
 // ** Styled Component for the wrapper of all the features of a plan
 
@@ -93,35 +95,35 @@ const Home = () => {
 
 
 
-
-  useEffect(
-    () => {
-      const provider = window.ethereum; //new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545");
-      console.log()
-      async function template() {
-        setLoading(true);
-        const providerEther = await new BrowserProvider(window.ethereum)
-        const signer = await providerEther.getSigner()
-        const contractEther = await new ContractEthers(deployedContractAddress, bnbAndyFinanceContract.abi, signer);
-        setStateEther({ providerEther: providerEther, provider: provider, signer: signer, contract: contractEther, walletAddress: provider.selectedAddress });
-        setLoading(false);
+  /*
+    useEffect(
+      () => {
+        const provider = window.ethereum; //new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545");
+        console.log()
+        async function template() {
+          setLoading(true);
+          const providerEther = await new BrowserProvider(window.ethereum)
+          const signer = await providerEther.getSigner()
+          const contractEther = await new ContractEthers(deployedContractAddress, bnbAndyFinanceContract.abi, signer);
+          setStateEther({ providerEther: providerEther, provider: provider, signer: signer, contract: contractEther, walletAddress: provider.selectedAddress });
+          setLoading(false);
+        }
+        provider && template();
       }
-      provider && template();
-    }
-    , [])
+      , [])
 
-  useEffect(
-    () => {
+    useEffect(
+      () => {
 
-      const { contract } = stateEther;
-      async function readData() {
-        if (!contract) return;
-        await GetDashboardItem();
-      }
-      contract && readData();
+        const { contract } = stateEther;
+        async function readData() {
+          if (!contract) return;
+          await GetDashboardItem();
+        }
+        contract && readData();
 
-    }, [stateEther])
-
+      }, [stateEther])
+  */
 
   async function GetDashboardItem() {
     const { contract, providerEther, provider } = stateEther
@@ -191,6 +193,16 @@ const Home = () => {
 
     await GetDashboardItem();
   }
+
+  const { open, selectedNetworkId } = useWeb3ModalState()
+  async function GetWagmiValues() {
+    console.log("open", open)
+    console.log("selectedNetworkId", selectedNetworkId)
+    console.log("WagmiComponent", WagmiComponent)
+  }
+
+
+
 
   async function setDepositValueToInvest(ratio: number) {
     const returnVal = (Number(formatEther(dashboardItem!.walletBalance)) * ratio).toFixed(5)
@@ -289,6 +301,20 @@ const Home = () => {
 
       {!isLoading && dashboardItem && (
         <Grid container spacing={6} sx={{ mt: 2, p: 3 }}>
+
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="body1" sx={{}}>
+                    <WagmiComponent></WagmiComponent>
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+
           <Grid item xs={12}>
             <Card>
               <CardContent>
@@ -710,7 +736,7 @@ const Home = () => {
               </Card>
             </Grid>
           </Grid>
-          {/* 
+
           <Grid item xs={4}>
             <Button
               size='large'
@@ -736,7 +762,21 @@ const Home = () => {
             >
               {t('Refresh Values').toString()}
             </Button>
-          </Grid> */}
+          </Grid>
+
+          <Grid item xs={4}>
+            <Button
+              size='large'
+              variant='contained'
+              color='error'
+              sx={{ margin: 3 }}
+              onClick={async () => {
+                await GetWagmiValues();
+              }}
+            >
+              {t('Get Wagmi Values').toString()}
+            </Button>
+          </Grid>
         </Grid>
       )}
 
@@ -818,6 +858,7 @@ const Home = () => {
 
         </DialogActions>
       </Dialog>
+
     </Fragment >
   )
 }

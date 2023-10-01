@@ -13,11 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { CircularProgress, Button, Grid, TextField, Box, Typography, Card, CardContent, Dialog, DialogActions, DialogContent } from '@mui/material'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import CustomChip from 'src/@core/components/mui/chip'
-import WagmiComponent from './WagmiComponent'
-
-
-import { useAccount, useContract, useBalance } from 'wagmi'
-import { useWeb3ModalState } from '@web3modal/wagmi/react'
+import WagmiComponent, { WagmiUserProp } from './WagmiComponent'
 
 // ** Styled Component for the wrapper of all the features of a plan
 
@@ -95,35 +91,45 @@ const Home = () => {
 
 
 
-  /*
-    useEffect(
-      () => {
-        const provider = window.ethereum; //new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545");
-        console.log()
-        async function template() {
-          setLoading(true);
-          const providerEther = await new BrowserProvider(window.ethereum)
-          const signer = await providerEther.getSigner()
-          const contractEther = await new ContractEthers(deployedContractAddress, bnbAndyFinanceContract.abi, signer);
-          setStateEther({ providerEther: providerEther, provider: provider, signer: signer, contract: contractEther, walletAddress: provider.selectedAddress });
-          setLoading(false);
-        }
-        provider && template();
+  const wagmiUserProp = { chains: {}, useAccount: {}, wagmiConfig: {} } as WagmiUserProp;
+
+
+  useEffect(
+    () => {
+      const { address, isConnected } = wagmiUserProp.useAccount.useAccount;
+      const provider = window.ethereum; //new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545");
+      console.log()
+      async function template() {
+        setLoading(true);
+        const providerEther = await new BrowserProvider(window.ethereum)
+        const signer = await providerEther.getSigner()
+        const contractEther = await new ContractEthers(deployedContractAddress, bnbAndyFinanceContract.abi, signer);
+        setStateEther({ providerEther: providerEther, provider: provider, signer: signer, contract: contractEther, walletAddress: address });
+        setLoading(false);
       }
-      , [])
+      wagmiUserProp.useAccount.useAccount.isConnected && provider && template();
+    }
+    , [])
 
-    useEffect(
-      () => {
 
-        const { contract } = stateEther;
-        async function readData() {
-          if (!contract) return;
-          await GetDashboardItem();
-        }
-        contract && readData();
+  useEffect(
+    () => {
+      console.log(" wagmiUserProp.useAccount.useAccount.isConnected", wagmiUserProp.useAccount.useAccount.isConnected)
+    }
+    , [wagmiUserProp.useAccount && wagmiUserProp.useAccount.useAccount])
 
-      }, [stateEther])
-  */
+  useEffect(
+    () => {
+
+      const { contract } = stateEther;
+      async function readData() {
+        if (!contract) return;
+        await GetDashboardItem();
+      }
+      contract && readData();
+
+    }, [stateEther])
+
 
   async function GetDashboardItem() {
     const { contract, providerEther, provider } = stateEther
@@ -194,11 +200,8 @@ const Home = () => {
     await GetDashboardItem();
   }
 
-  const { open, selectedNetworkId } = useWeb3ModalState()
   async function GetWagmiValues() {
-    console.log("open", open)
-    console.log("selectedNetworkId", selectedNetworkId)
-    console.log("WagmiComponent", WagmiComponent)
+    console.log("wagmiUserProp", wagmiUserProp.useAccount)
   }
 
 
@@ -219,36 +222,36 @@ const Home = () => {
 
   //************************************************* */
 
-  function Account() {
-    return (
-      <>
-        <span>Account</span>
-        <span role="img" aria-label="robot">
-          🤖
-        </span>
-        <span>
-          {stateEther.walletAddress === null
-            ? '-'
-            : stateEther.walletAddress
-              ? `${stateEther.walletAddress.substring(0, 6)}...${stateEther.walletAddress.substring(stateEther.walletAddress.length - 4)}`
-              : ''}
-        </span>
-      </>
-    )
-  }
+  // function Account() {
+  //   return (
+  //     <>
+  //       <span>Account</span>
+  //       <span role="img" aria-label="robot">
+  //         🤖
+  //       </span>
+  //       <span>
+  //         {stateEther.walletAddress === null
+  //           ? '-'
+  //           : stateEther.walletAddress
+  //             ? `${stateEther.walletAddress.substring(0, 6)}...${stateEther.walletAddress.substring(stateEther.walletAddress.length - 4)}`
+  //             : ''}
+  //       </span>
+  //     </>
+  //   )
+  // }
 
-  function Balance() {
+  // function Balance() {
 
-    return (
-      <>
-        <span>Balance</span>
-        <span role="img" aria-label="gold">
-          💰
-        </span>
-        <span>{dashboardItem!.walletBalance === null ? 'Error' : dashboardItem!.walletBalance! ? `Ξ${formatEther(dashboardItem!.walletBalance!)}` : ''}</span>
-      </>
-    )
-  }
+  //   return (
+  //     <>
+  //       <span>Balance</span>
+  //       <span role="img" aria-label="gold">
+  //         💰
+  //       </span>
+  //       <span>{dashboardItem!.walletBalance === null ? 'Error' : dashboardItem!.walletBalance! ? `Ξ${formatEther(dashboardItem!.walletBalance!)}` : ''}</span>
+  //     </>
+  //   )
+  // }
 
 
 
@@ -302,17 +305,6 @@ const Home = () => {
       {!isLoading && dashboardItem && (
         <Grid container spacing={6} sx={{ mt: 2, p: 3 }}>
 
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="body1" sx={{}}>
-                    <WagmiComponent></WagmiComponent>
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
 
 
           <Grid item xs={12}>
@@ -332,11 +324,8 @@ const Home = () => {
               <CardContent >
                 <Grid container xs={12} sx={{ justifyContent: 'center' }}>
                   <Grid item xs={4} >
-                    <Box sx={{ textAlign: 'left' }}>
-                      {Account()}
-                    </Box>
-                    <Box sx={{ textAlign: 'left' }}>
-                      {Balance()}
+                    <Box sx={{ textAlign: '-webkit-center'! }}>
+                      <WagmiComponent wagmiUserProp={wagmiUserProp}></WagmiComponent>
                     </Box>
                   </Grid>
                 </Grid>

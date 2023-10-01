@@ -20,24 +20,49 @@ const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
 // 3. Create modal
 createWeb3Modal({ wagmiConfig, projectId, chains })
 
-function GetWagmiStatus() {
-  const { address, isConnecting, isDisconnected } = useAccount()
 
-  const test = useAccount()
-
-  if (isConnecting) return <div>Connecting…</div>
-  if (isDisconnected) return <div>Disconnected</div>
-
-  console.log("test", test)
-
-  return <div>{address}</div>
+export type WagmiChains = {
+  chains?: any
 }
 
-export default function WagmiComponent() {
+export type UserTypeWagmiConfig = {
+  wagmiConfig?: any
+}
+export type WagmiUseAccount = {
+  useAccount?: any
+}
+
+export interface WagmiUserProp {
+  wagmiConfig?: any;
+  useAccount?: any;
+  chains?: any;
+}
+
+
+
+const GetWagmiStatus = (props: { wagmiUseAccount: WagmiUseAccount }) => {
+  const { isConnecting, isDisconnected } = useAccount()
+
+  props.wagmiUseAccount.useAccount = useAccount()
+
+  // if (isConnecting) return <div>Connecting…</div>
+  // if (isDisconnected) return <div>Disconnected </div>
+
+  return <div>{ }</div>
+}
+
+
+const WagmiComponent = (props: { wagmiUserProp: WagmiUserProp }) => {
+
+  props.wagmiUserProp.wagmiConfig = wagmiConfig;
+
   return (
     <WagmiConfig config={wagmiConfig}>
       <w3m-button balance="show" />
-      <GetWagmiStatus />
+      <GetWagmiStatus wagmiUseAccount={props.wagmiUserProp.useAccount} />
     </WagmiConfig>
   )
 }
+
+
+export default WagmiComponent

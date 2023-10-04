@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { CircularProgress, Button, Grid, TextField, Box, Typography, Card, CardContent, Dialog, DialogActions, DialogContent } from '@mui/material'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import CustomChip from 'src/@core/components/mui/chip'
-import WagmiComponent, { WagmiUserProp } from './WagmiComponent'
+import WagmiComponent, { WagmiUserProp } from '../components/PageIndexComponents/WagmiComponents/WagmiComponent'
 
 // ** Styled Component for the wrapper of all the features of a plan
 
@@ -48,9 +48,6 @@ type DashboardItem = {
   walletBalance: 0
 }
 
-
-
-const deployedContractAddress = process.env.NEXT_PUBLIC_ANDY_FINANCE_ADDRESS as string
 const Home = () => {
   const [isLoading, setLoading] = useState(false)
   const [isLoadingForDeposit, setIsLoadingForDeposit] = useState(false)
@@ -86,8 +83,10 @@ const Home = () => {
   })
 
   const [openVersionPopup, setOpenVersionPopup] = useState(false)
+  const [openDepositPopup, setOpenDepositPopup] = useState(false)
   const [depositValue, setDepositValue] = useState(0)
   const [referrerWallet, setReferrerWallet] = useState("0x779D0fe3C586C8492d7a04141a7F92048e4d180e")
+
 
 
 
@@ -96,14 +95,13 @@ const Home = () => {
 
   useEffect(
     () => {
-      const { address, isConnected } = wagmiUserProp.useAccount.useAccount;
+      const { address } = wagmiUserProp.useAccount.useAccount;
       const provider = window.ethereum; //new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545");
-      console.log()
       async function template() {
         setLoading(true);
         const providerEther = await new BrowserProvider(window.ethereum)
         const signer = await providerEther.getSigner()
-        const contractEther = await new ContractEthers(deployedContractAddress, bnbAndyFinanceContract.abi, signer);
+        const contractEther = await new ContractEthers(process.env.NEXT_PUBLIC_ANDY_FINANCE_CURRENT as string, bnbAndyFinanceContract.abi, signer);
         setStateEther({ providerEther: providerEther, provider: provider, signer: signer, contract: contractEther, walletAddress: address });
         setLoading(false);
       }
@@ -188,6 +186,8 @@ const Home = () => {
 
   }
 
+
+
   async function investEtherJs() {
     const etherValue = parseUnits("" + depositValue, 18);
 
@@ -202,6 +202,10 @@ const Home = () => {
 
   async function GetWagmiValues() {
     console.log("wagmiUserProp", wagmiUserProp.useAccount)
+
+    const provider = wagmiUserProp.wagmiConfig
+
+    console.log("provider", provider)
   }
 
 
@@ -213,7 +217,6 @@ const Home = () => {
 
     return returnVal
   }
-
 
   async function investDeposit(): Promise<void | PromiseLike<void>> {
     await investEtherJs();
@@ -325,7 +328,7 @@ const Home = () => {
                 <Grid container xs={12} sx={{ justifyContent: 'center' }}>
                   <Grid item xs={4} >
                     <Box sx={{ textAlign: '-webkit-center'! }}>
-                      <WagmiComponent wagmiUserProp={wagmiUserProp}></WagmiComponent>
+                      <WagmiComponent wagmiUserProp={wagmiUserProp} openDepositPopup={openDepositPopup} setOpenDepositPopup={setOpenDepositPopup}></WagmiComponent>
                     </Box>
                   </Grid>
                 </Grid>
@@ -475,7 +478,7 @@ const Home = () => {
                         color='success'
                         sx={{ margin: 1, width: "170px" }}
                         onClick={() => {
-                          setOpenVersionPopup(true)
+                          setOpenDepositPopup(true)
                         }}
                       >
                         {t('Deposit').toString()}

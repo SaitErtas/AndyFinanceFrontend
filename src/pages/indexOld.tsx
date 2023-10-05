@@ -18,43 +18,210 @@ import { WagmiUserProp } from 'src/components/TypeOrInterface/TypeOrInterfaceCla
 
 // ** Styled Component for the wrapper of all the features of a plan
 
-const Home = () => {
+
+interface UserEther {
+  providerEther: any
+  provider: any
+  signer: any
+  contract: any
+  walletAddress: any
+}
+
+type DashboardItem = {
+  totalInvested: 0
+  getContractBalance: 0
+  getPlanInfo: 0
+  getUserDividends: null
+  getUserActivePlansAmount: 0
+  getUserTotalWithdrawn: 0
+  getUserCheckpoint: null
+  getUserReferrer: 0
+  getUserTotalReferrals: 0
+  getUserReferralTotalBonus: 0
+  getUserReferralWithdrawn: 0
+  getUserAvailable: 0
+  getUserAmountOfDeposits: 0
+  getUserTotalDeposits: 0
+  getUserDepositInfo: null
+  getUserActionLength: null
+  getUserInfo: null
+  getSiteInfo: null
+  walletBalance: 0
+}
+
+const HomeOld = () => {
   const [isLoading, setLoading] = useState(false)
   const [isLoadingForDeposit, setIsLoadingForDeposit] = useState(false)
   const { t } = useTranslation()
+  const [stateEther, setStateEther] = useState<UserEther>({
+    providerEther: null,
+    signer: null,
+    contract: null,
+    provider: null,
+    walletAddress: ""
+  });
 
+  const [dashboardItem, setDashboardItem] = useState<DashboardItem>({
+    totalInvested: 0,
+    getContractBalance: 0,
+    getPlanInfo: 0,
+    getUserDividends: null,
+    getUserActivePlansAmount: 0,
+    getUserTotalWithdrawn: 0,
+    getUserCheckpoint: null,
+    getUserReferrer: 0,
+    getUserTotalReferrals: 0,
+    getUserReferralTotalBonus: 0,
+    getUserReferralWithdrawn: 0,
+    getUserAvailable: 0,
+    getUserAmountOfDeposits: 0,
+    getUserTotalDeposits: 0,
+    getUserDepositInfo: null,
+    getUserActionLength: null,
+    getUserInfo: null,
+    getSiteInfo: null,
+    walletBalance: 0
+  })
 
+  const [openVersionPopup, setOpenVersionPopup] = useState(false)
   const [openDepositPopup, setOpenDepositPopup] = useState(false)
-  const [isConnected, setIsConnected] = useState(false)
+  const [depositValue, setDepositValue] = useState(0)
+  const [referrerWallet, setReferrerWallet] = useState("0x779D0fe3C586C8492d7a04141a7F92048e4d180e")
 
 
-  const wagmiUserProp = {
-    chains: {}, useAccount: {}, wagmiConfig: {}, dashboardItem: {
-      totalInvested: 0 as unknown as bigint,
-      getContractBalance: 0 as unknown as bigint,
-      getPlanInfo: 0 as unknown as bigint,
-      getUserDividends: null,
-      getUserActivePlansAmount: 0 as unknown as bigint,
-      getUserTotalWithdrawn: 0 as unknown as bigint,
-      getUserCheckpoint: null,
-      getUserReferrer: 0 as unknown as bigint,
-      getUserTotalReferrals: 0 as unknown as bigint,
-      getUserReferralTotalBonus: 0 as unknown as bigint,
-      getUserReferralWithdrawn: 0 as unknown as bigint,
-      getUserAvailable: 0 as unknown as bigint,
-      getUserAmountOfDeposits: 0 as unknown as bigint,
-      getUserTotalDeposits: 0 as unknown as bigint,
-      getUserDepositInfo: 0 as unknown as bigint,
-      getUserActionLength: null,
-      getUserInfo: null,
-      getSiteInfo: null,
-    }, useBalance: {}, useContractRead: {}
-  } as WagmiUserProp;
 
+
+  const wagmiUserProp = { chains: {}, useAccount: {}, wagmiConfig: {} } as WagmiUserProp;
+
+
+  useEffect(
+    () => {
+      const { address } = wagmiUserProp.useAccount.useAccount;
+      const provider = window.ethereum; //new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545");
+      async function template() {
+        setLoading(true);
+        const providerEther = await new BrowserProvider(window.ethereum)
+        const signer = await providerEther.getSigner()
+        const contractEther = await new ContractEthers(process.env.NEXT_PUBLIC_ANDY_FINANCE_CURRENT as string, ContractBnbAndyFinance.abi, signer);
+        setStateEther({ providerEther: providerEther, provider: provider, signer: signer, contract: contractEther, walletAddress: address });
+        setLoading(false);
+      }
+      wagmiUserProp.useAccount.useAccount.isConnected && provider && template();
+    }
+    , [])
+
+
+  useEffect(
+    () => {
+      console.log(" wagmiUserProp.useAccount.useAccount.isConnected", wagmiUserProp.useAccount.useAccount.isConnected)
+    }
+    , [wagmiUserProp.useAccount && wagmiUserProp.useAccount.useAccount])
+
+  useEffect(
+    () => {
+
+      const { contract } = stateEther;
+      async function readData() {
+        if (!contract) return;
+        await GetDashboardItem();
+      }
+      contract && readData();
+
+    }, [stateEther])
+
+
+  async function GetDashboardItem() {
+    const { contract, providerEther, provider } = stateEther
+
+    // totalDeposit:  0
+    // activeInvestments:  0
+    // totalReferralEarnings:  0
+    // bnbToHarvest:  0
+    if (!contract) return;
+    const totalInvested = await contract.totalInvested();
+    const getContractBalance = await contract.getContractBalance();
+    const getPlanInfo = await contract.getPlanInfo();
+    const getUserDividends = await contract.getUserDividends(stateEther.walletAddress);
+    const getUserActivePlansAmount = await contract.getUserActivePlansAmount(stateEther.walletAddress);
+    const getUserTotalWithdrawn = await contract.getUserTotalWithdrawn(stateEther.walletAddress);
+    const getUserCheckpoint = await contract.getUserCheckpoint(stateEther.walletAddress);
+    const getUserReferrer = await contract.getUserReferrer(stateEther.walletAddress);
+    const getUserTotalReferrals = await contract.getUserTotalReferrals(stateEther.walletAddress);
+    const getUserReferralTotalBonus = await contract.getUserReferralTotalBonus(stateEther.walletAddress);
+    const getUserReferralWithdrawn = await contract.getUserReferralWithdrawn(stateEther.walletAddress);
+    const getUserAvailable = await contract.getUserAvailable(stateEther.walletAddress);
+    const getUserAmountOfDeposits = await contract.getUserAmountOfDeposits(stateEther.walletAddress);
+    const getUserTotalDeposits = await contract.getUserTotalDeposits(stateEther.walletAddress);
+    const getUserDepositInfo = await contract.getUserDepositInfo(stateEther.walletAddress);
+
+    //const getUserActions = await contract.getUserActions(stateEther.walletAddress);
+    const getUserActionLength = await contract.getUserActionLength(stateEther.walletAddress);
+    const getUserInfo = await contract.getUserInfo(stateEther.walletAddress);
+    const getSiteInfo = await contract.getSiteInfo();
+    const walletBalance = await providerEther.getBalance(provider.selectedAddress)
+
+
+
+    setDashboardItem({
+      totalInvested: totalInvested,
+      getContractBalance: getContractBalance,
+      getPlanInfo: getPlanInfo,
+      getUserDividends: getUserDividends,
+      getUserActivePlansAmount: getUserActivePlansAmount,
+      getUserTotalWithdrawn: getUserTotalWithdrawn,
+      getUserCheckpoint: getUserCheckpoint,
+      getUserReferrer: getUserReferrer,
+      getUserTotalReferrals: getUserTotalReferrals,
+      getUserReferralTotalBonus: getUserReferralTotalBonus,
+      getUserReferralWithdrawn: getUserReferralWithdrawn,
+      getUserAvailable: getUserAvailable,
+      getUserAmountOfDeposits: getUserAmountOfDeposits,
+      getUserTotalDeposits: getUserTotalDeposits,
+      getUserDepositInfo: getUserDepositInfo,
+      getUserActionLength: getUserActionLength,
+      getUserInfo: getUserInfo,
+      getSiteInfo: getSiteInfo,
+      walletBalance: walletBalance
+    })
+
+
+  }
+
+
+
+  async function investEtherJs() {
+    const etherValue = parseUnits("" + depositValue, 18);
+
+    console.log(etherValue);
+    const { contract } = stateEther
+    const totalDeposit = await contract.invest(referrerWallet, { value: etherValue });
+    console.log("data:", totalDeposit);
+    await totalDeposit.wait();
+
+    await GetDashboardItem();
+  }
 
   async function GetWagmiValues() {
     console.log("wagmiUserProp", wagmiUserProp.useAccount)
 
+    const provider = wagmiUserProp.wagmiConfig
+
+    console.log("provider", provider)
+  }
+
+
+
+
+  async function setDepositValueToInvest(ratio: number) {
+    const returnVal = (Number(formatEther(dashboardItem!.walletBalance)) * ratio).toFixed(5)
+    setDepositValue(Number(returnVal))
+
+    return returnVal
+  }
+
+  async function investDeposit(): Promise<void | PromiseLike<void>> {
+    await investEtherJs();
+    setOpenVersionPopup(false);
   }
 
   //************************************************* */
@@ -139,7 +306,7 @@ const Home = () => {
         </Fragment>
       )} */}
 
-      {!isLoading && wagmiUserProp.dashboardItem && (
+      {!isLoading && dashboardItem && (
         <Grid container spacing={6} sx={{ mt: 2, p: 3 }}>
 
 
@@ -162,7 +329,7 @@ const Home = () => {
                 <Grid container xs={12} sx={{ justifyContent: 'center' }}>
                   <Grid item xs={4} >
                     <Box sx={{ textAlign: '-webkit-center'! }}>
-                      <WagmiComponent wagmiUserProp={wagmiUserProp} isConnected={isConnected} openDepositPopup={openDepositPopup} setOpenDepositPopup={setOpenDepositPopup} setIsConnected={setIsConnected} ></WagmiComponent>
+                      <WagmiComponent wagmiUserProp={wagmiUserProp} openDepositPopup={openDepositPopup} setOpenDepositPopup={setOpenDepositPopup}></WagmiComponent>
                     </Box>
                   </Grid>
                 </Grid>
@@ -180,7 +347,7 @@ const Home = () => {
                       Total Deposited Value
                     </Typography>
                     <Typography sx={{}}>
-                      {"" + formatEther(wagmiUserProp.dashboardItem.getUserTotalDeposits)}
+                      {"" + formatEther(dashboardItem.getUserTotalDeposits)}
 
                     </Typography>
                   </Box>
@@ -195,7 +362,7 @@ const Home = () => {
                       Active Investments
                     </Typography>
                     <Typography sx={{}}>
-                      {"" + formatEther(wagmiUserProp.dashboardItem.getContractBalance)}
+                      {"" + formatEther(dashboardItem.getContractBalance)}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -209,7 +376,7 @@ const Home = () => {
                       Total Referral Earnings
                     </Typography>
                     <Typography sx={{}}>
-                      {"" + formatEther(wagmiUserProp.dashboardItem.getUserTotalReferrals)}
+                      {"" + formatEther(dashboardItem.getUserTotalReferrals)}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -238,7 +405,7 @@ const Home = () => {
                       DAILY ROI
                     </Typography>
                     <Typography sx={{}}>
-                      {"" + wagmiUserProp.dashboardItem.getPlanInfo}
+                      {"" + dashboardItem?.getPlanInfo}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -252,7 +419,7 @@ const Home = () => {
                       Total Deposit
                     </Typography>
                     <Typography sx={{}}>
-                      {"" + formatEther(wagmiUserProp.dashboardItem.getUserTotalDeposits)}
+                      {"" + formatEther(dashboardItem.getUserTotalDeposits)}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -266,7 +433,7 @@ const Home = () => {
                       Remaining Earnings
                     </Typography>
                     <Typography sx={{}}>
-                      {"" + formatEther(wagmiUserProp.dashboardItem.getUserTotalWithdrawn)}
+                      {"" + formatEther(dashboardItem.getUserTotalWithdrawn)}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -280,7 +447,7 @@ const Home = () => {
                       Total Withdrawn
                     </Typography>
                     <Typography sx={{}}>
-                      {"" + formatEther(wagmiUserProp.dashboardItem.getUserTotalWithdrawn)}
+                      {"" + formatEther(dashboardItem.getUserTotalWithdrawn)}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -294,7 +461,7 @@ const Home = () => {
                       BNB to Harvest
                     </Typography>
                     <Typography sx={{}}>
-                      {"" + formatEther(wagmiUserProp.dashboardItem.getContractBalance)}
+                      {"" + formatEther(dashboardItem.getContractBalance)}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -324,6 +491,9 @@ const Home = () => {
                         variant='contained'
                         color='warning'
                         sx={{ margin: 1, width: "170px" }}
+                        onClick={async () => {
+                          await investEtherJs()
+                        }}
                       >
                         {t('Harvest').toString()}
                       </Button>
@@ -407,7 +577,7 @@ const Home = () => {
                 <CardContent>
                   <Box sx={{ textAlign: 'center', height: "100px", width: "190px" }}>
                     <Typography sx={{}}>
-                      {"" + formatEther(wagmiUserProp.dashboardItem.totalInvested)}
+                      {"" + formatEther(dashboardItem.totalInvested)}
                     </Typography>
                     <Typography variant="body1" sx={{}}>
                       Your Total Investment
@@ -421,7 +591,7 @@ const Home = () => {
                 <CardContent>
                   <Box sx={{ textAlign: 'center', height: "100px", width: "190px" }}>
                     <Typography sx={{}}>
-                      {"" + wagmiUserProp.dashboardItem.getUserTotalWithdrawn}
+                      {"" + dashboardItem?.getUserTotalWithdrawn}
                     </Typography>
                     <Typography variant="body1" sx={{}}>
                       Insurance Fee
@@ -521,7 +691,7 @@ const Home = () => {
                   <Box sx={{ textAlign: 'center', height: "100px", width: "190px" }}>
 
                     <Typography sx={{}}>
-                      {"" + wagmiUserProp.dashboardItem.getUserTotalReferrals}
+                      {"" + dashboardItem.getUserTotalReferrals}
                     </Typography>
                     <Typography variant="body1" sx={{}}>
                       Total Referral Earnings
@@ -536,7 +706,7 @@ const Home = () => {
                 <CardContent >
                   <Box sx={{ textAlign: 'center', height: "100px", width: "190" }}>
                     <Typography sx={{}}>
-                      {"" + formatEther(wagmiUserProp.dashboardItem.getUserTotalReferrals)}
+                      {"" + formatEther(dashboardItem.getUserTotalReferrals)}
                     </Typography>
                     <Typography variant="body1" sx={{}}>
                       Available Referral Earnings
@@ -567,7 +737,7 @@ const Home = () => {
               color='error'
               sx={{ margin: 3 }}
               onClick={() => {
-                console.log("dashboardItem : ", wagmiUserProp.dashboardItem)
+                console.log("dashboardItem", dashboardItem)
               }}
             >
               {t('Dashboard Item').toString()}
@@ -579,7 +749,9 @@ const Home = () => {
               variant='contained'
               color='error'
               sx={{ margin: 3 }}
-
+              onClick={() => {
+                GetDashboardItem();
+              }}
             >
               {t('Refresh Values').toString()}
             </Button>
@@ -600,12 +772,92 @@ const Home = () => {
           </Grid>
         </Grid>
       )}
+
+      <Dialog
+        fullWidth
+        open={openVersionPopup}
+        maxWidth='sm'
+        scroll='body'
+        onClose={() => setOpenVersionPopup(false)}
+        onBackdropClick={() => setOpenVersionPopup(false)}
+      >
+        <DialogContent sx={{ pb: 6, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>
+          <Box sx={{}}>
+
+            <Typography variant='h5' sx={{ mb: 5, lineHeight: '2rem' }}>
+              {t('Deposit').toString()}
+            </Typography>
+
+            <Typography sx={{ lineHeight: '2rem' }}>
+              {t('BNB in Your Wallet').toString() + " : " + Number(formatEther(dashboardItem!.walletBalance)).toLocaleString(undefined, { maximumFractionDigits: 5 })}
+            </Typography>
+
+            <Typography sx={{ mb: 5, lineHeight: '2rem' }}>
+              {t('Min Deposit').toString() + " : 0.00001"}
+            </Typography>
+
+            <TextField
+              fullWidth
+
+              InputLabelProps={{ shrink: true }}
+              label={t('Deposit Amount').toString()}
+              value={depositValue}
+              onChange={e => {
+                setDepositValue(Number(e.target.value))
+              }}
+            />
+            <Box sx={{ mt: 1, mb: 5 }}>
+              <Button sx={{ mr: 3 }} variant='contained' size='small' color='success' onClick={() => setDepositValueToInvest(0.25)}>
+                {t('25%').toString()}
+              </Button>
+              <Button sx={{ mr: 3 }} variant='contained' size='small' color='success' onClick={() => setDepositValueToInvest(0.55)}>
+                {t('50%').toString()}
+              </Button>
+              <Button sx={{ mr: 3 }} variant='contained' size='small' color='success' onClick={() => setDepositValueToInvest(0.75)}>
+                {t('75%').toString()}
+              </Button>
+              <Button variant='contained' size='small' color='success' onClick={() => setDepositValueToInvest(.99999)}>
+                {t('100%').toString()}
+              </Button>
+            </Box>
+            <TextField
+              fullWidth
+
+              InputLabelProps={{ shrink: true }}
+              label={t('Referrer Wallet').toString()}
+              value={referrerWallet}
+              onChange={e => {
+                setReferrerWallet("" + e.target.value)
+              }}
+            />
+          </Box>{' '}
+        </DialogContent>
+        <DialogActions sx={{ pb: { xs: 8, sm: 12.5 }, justifyContent: 'center' }}>
+          {isLoadingForDeposit && (
+            <Fragment>
+              <CircularProgress color='inherit' size={20} />
+            </Fragment>
+          )}
+          {!isLoadingForDeposit && (
+            <Button variant='contained' sx={{ width: "100%" }} color='primary' onClick={async () => {
+              setIsLoadingForDeposit(true);
+              await investDeposit();
+              setIsLoadingForDeposit(false);
+            }
+            }>
+              {t('Deposit').toString()}
+            </Button>
+          )}
+
+        </DialogActions>
+      </Dialog>
+
     </Fragment >
   )
 }
 
 
-Home.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
-Home.guestGuard = true
+HomeOld.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
+HomeOld.guestGuard = true
 
-export default Home
+export default HomeOld

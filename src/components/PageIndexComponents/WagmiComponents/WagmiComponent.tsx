@@ -3,10 +3,12 @@ import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
 import { WagmiConfig, useAccount, useBalance, useConnect, useContractRead, useContractReads } from 'wagmi'
 import { arbitrum, localhost, mainnet } from 'wagmi/chains'
 
-import bnbAndyFinanceContract from 'src/contract/BnbAndyFinance.json'
-import bnbAndyAbi from 'src/contract/'
+
 import WagmiContratDeposit from './WagmiContratDeposit'
 import { Abi } from 'viem'
+import SetDashboardItem from './SetDashboardItem'
+import { WagmiUserProp } from 'src/components/TypeOrInterface/TypeOrInterfaceClass'
+import { useState } from 'react'
 
 
 // 1. Get projectId
@@ -38,65 +40,12 @@ export type WagmiUseAccount = {
   useAccount?: any
 }
 
-type DashboardItem = {
-  totalInvested: 0
-  getContractBalance: 0
-  getPlanInfo: 0
-  getUserDividends: null
-  getUserActivePlansAmount: 0
-  getUserTotalWithdrawn: 0
-  getUserCheckpoint: null
-  getUserReferrer: 0
-  getUserTotalReferrals: 0
-  getUserReferralTotalBonus: 0
-  getUserReferralWithdrawn: 0
-  getUserAvailable: 0
-  getUserAmountOfDeposits: 0
-  getUserTotalDeposits: 0
-  getUserDepositInfo: null
-  getUserActionLength: null
-  getUserInfo: null
-  getSiteInfo: null
-  walletBalance: 0
-}
-
-export interface WagmiUserProp {
-  wagmiConfig?: any;
-  useAccount?: any;
-  chains?: any;
-  useBalance?: any;
-  useContractRead?: any;
-  dashboardItem?: DashboardItem;
-}
-
-
-const wagmiBnbDailyContract = {
-  address: process.env.NEXT_PUBLIC_ANDY_FINANCE_CURRENT as `0x${string}`,
-  abi: bnbAndyFinanceContract.abi as Abi,
-}
-
-function SetDashboardItem(props: { wagmiUserProp: WagmiUserProp }) {
-  const { data, isError, isLoading } = useContractReads({
-    contracts: [
-      {
-        ...wagmiBnbDailyContract,
-        functionName: 'totalInvested'
-      },
-      {
-        ...wagmiBnbDailyContract,
-        functionName: 'getContractBalance'
-      },
-
-    ],
-  })
-
-  props.wagmiUserProp.dashboardItem = data
 
 
 
-}
 
-const GetWagmiStatus = (props: { wagmiUserProp: WagmiUserProp }) => {
+
+const GetWagmiStatus = (props: { wagmiUserProp: WagmiUserProp, setIsConnected: any }) => {
   const { isConnecting, isDisconnected, isConnected, connector, address } = useAccount()
 
   props.wagmiUserProp.useAccount.useAccount = useAccount()
@@ -110,10 +59,13 @@ const GetWagmiStatus = (props: { wagmiUserProp: WagmiUserProp }) => {
   // if (isConnecting) return <div>Connecting…</div>
   // if (isDisconnected) return <div>Disconnected </div>
 
-  // if (props.wagmiUseAccount.useAccount.isConnected) {
+  if (isConnected) {
+    props.setIsConnected(true);
+  }
+  else {
+    props.setIsConnected(false);
+  }
 
-
-  // }
   // else if (props.wagmiUseAccount.useAccount.isDisconnected) {
   // }
 
@@ -142,20 +94,30 @@ const GetWagmiStatus = (props: { wagmiUserProp: WagmiUserProp }) => {
 //   return <div>{ }</div>
 // }
 
-const WagmiComponent = (props: { wagmiUserProp: WagmiUserProp, openDepositPopup: boolean, setOpenDepositPopup: any }) => {
+
+const WagmiComponent = (props: { wagmiUserProp: WagmiUserProp, isConnected: boolean, setIsConnected: any, openDepositPopup: boolean, setOpenDepositPopup: any }) => {
 
   props.wagmiUserProp.wagmiConfig = wagmiConfig;
 
-  SetDashboardItem({ wagmiUserProp: props.wagmiUserProp });
+
+
+
+
+
+
 
   return (
     <WagmiConfig config={wagmiConfig}>
       <w3m-button balance="show" />
-      <GetWagmiStatus wagmiUserProp={props.wagmiUserProp} />
-      <WagmiContratDeposit wagmiUserProp={props.wagmiUserProp} openDepositPopup={props.openDepositPopup} setOpenDepositPopup={props.setOpenDepositPopup}  ></WagmiContratDeposit>
+      <GetWagmiStatus wagmiUserProp={props.wagmiUserProp} setIsConnected={props.setIsConnected} />
+      <WagmiContratDeposit wagmiUserProp={props.wagmiUserProp} isConnected={props.isConnected} openDepositPopup={props.openDepositPopup} setOpenDepositPopup={props.setOpenDepositPopup}  ></WagmiContratDeposit>
+      <SetDashboardItem wagmiUserProp={props.wagmiUserProp}></SetDashboardItem>
     </WagmiConfig>
   )
+
 }
 
 export default WagmiComponent
+
+
 

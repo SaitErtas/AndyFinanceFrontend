@@ -1,10 +1,12 @@
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
 
-import { WagmiConfig, useAccount, useBalance, useConnect, useContractRead } from 'wagmi'
+import { WagmiConfig, useAccount, useBalance, useConnect, useContractRead, useContractReads } from 'wagmi'
 import { arbitrum, localhost, mainnet } from 'wagmi/chains'
 
 import bnbAndyFinanceContract from 'src/contract/BnbAndyFinance.json'
+import bnbAndyAbi from 'src/contract/'
 import WagmiContratDeposit from './WagmiContratDeposit'
+import { Abi } from 'viem'
 
 
 // 1. Get projectId
@@ -36,17 +38,63 @@ export type WagmiUseAccount = {
   useAccount?: any
 }
 
+type DashboardItem = {
+  totalInvested: 0
+  getContractBalance: 0
+  getPlanInfo: 0
+  getUserDividends: null
+  getUserActivePlansAmount: 0
+  getUserTotalWithdrawn: 0
+  getUserCheckpoint: null
+  getUserReferrer: 0
+  getUserTotalReferrals: 0
+  getUserReferralTotalBonus: 0
+  getUserReferralWithdrawn: 0
+  getUserAvailable: 0
+  getUserAmountOfDeposits: 0
+  getUserTotalDeposits: 0
+  getUserDepositInfo: null
+  getUserActionLength: null
+  getUserInfo: null
+  getSiteInfo: null
+  walletBalance: 0
+}
+
 export interface WagmiUserProp {
   wagmiConfig?: any;
   useAccount?: any;
   chains?: any;
   useBalance?: any;
   useContractRead?: any;
+  dashboardItem?: DashboardItem;
 }
 
 
+const wagmiBnbDailyContract = {
+  address: process.env.NEXT_PUBLIC_ANDY_FINANCE_CURRENT as `0x${string}`,
+  abi: bnbAndyFinanceContract.abi as Abi,
+}
+
+function SetDashboardItem(props: { wagmiUserProp: WagmiUserProp }) {
+  const { data, isError, isLoading } = useContractReads({
+    contracts: [
+      {
+        ...wagmiBnbDailyContract,
+        functionName: 'totalInvested'
+      },
+      {
+        ...wagmiBnbDailyContract,
+        functionName: 'getContractBalance'
+      },
+
+    ],
+  })
+
+  props.wagmiUserProp.dashboardItem = data
 
 
+
+}
 
 const GetWagmiStatus = (props: { wagmiUserProp: WagmiUserProp }) => {
   const { isConnecting, isDisconnected, isConnected, connector, address } = useAccount()
@@ -81,36 +129,30 @@ const GetWagmiStatus = (props: { wagmiUserProp: WagmiUserProp }) => {
   return <div>{ }</div>
 }
 
-function WagmiContratReads() {
-  const { data, isError, isLoading } = useContractRead({
-    address: process.env.NEXT_PUBLIC_ANDY_FINANCE_CURRENT as `0x${string}`,
-    abi: bnbAndyFinanceContract.abi,
-    functionName: 'getContractBalance',
-    onSettled(data, error) {
-      console.log('Settled', { data, error })
-    },
-  })
+// function WagmiContratReads() {
+//   const { data, isError, isLoading } = useContractRead({
+//     address: process.env.NEXT_PUBLIC_ANDY_FINANCE_CURRENT as `0x${string}`,
+//     abi: bnbAndyFinanceContract.abi,
+//     functionName: 'getContractBalance',
+//     onSettled(data, error) {
+//       console.log('Settled', { data, error })
+//     },
+//   })
 
-  return <div>{ }</div>
-}
+//   return <div>{ }</div>
+// }
 
 const WagmiComponent = (props: { wagmiUserProp: WagmiUserProp, openDepositPopup: boolean, setOpenDepositPopup: any }) => {
 
   props.wagmiUserProp.wagmiConfig = wagmiConfig;
 
-  console.log("wagmiConfig", wagmiConfig)
-
-  props.wagmiUserProp.useContractRead = useContractRead;
-
+  SetDashboardItem({ wagmiUserProp: props.wagmiUserProp });
 
   return (
     <WagmiConfig config={wagmiConfig}>
       <w3m-button balance="show" />
       <GetWagmiStatus wagmiUserProp={props.wagmiUserProp} />
-      <WagmiContratReads ></WagmiContratReads>
       <WagmiContratDeposit wagmiUserProp={props.wagmiUserProp} openDepositPopup={props.openDepositPopup} setOpenDepositPopup={props.setOpenDepositPopup}  ></WagmiContratDeposit>
-
-
     </WagmiConfig>
   )
 }

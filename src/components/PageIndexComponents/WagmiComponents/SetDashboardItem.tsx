@@ -9,8 +9,8 @@ const wagmiBnbDailyContract = {
   abi: ContractBnbAndyFinance.abi as Abi,
 }
 
-export default function SetDashboardItem(props: { wagmiUserProp: WagmiUserProp }) {
-  const { data, isError, isLoading, isSuccess } = useContractReads({
+export default function SetDashboardItem(props: { wagmiUserProp: WagmiUserProp, setDashboardItem: any }) {
+  const { data, isError, isLoading, isSuccess, status } = useContractReads({
     contracts: [
       {
         ...wagmiBnbDailyContract,
@@ -101,10 +101,8 @@ export default function SetDashboardItem(props: { wagmiUserProp: WagmiUserProp }
     ],
     watch: true,
     onSettled(data) {
-      console.log('Settled', data)
-      props.wagmiUserProp.dashboardItem = data as any as DashboardItem
-
-      const dasboardItem = {} as any as DashboardItem;
+      console.log('Settled-data', data)
+      const dasboardItem = {} as unknown as DashboardItem;
       if (data) {
         let i = 0;
         dasboardItem.totalInvested = data[i++].result as bigint;
@@ -125,8 +123,8 @@ export default function SetDashboardItem(props: { wagmiUserProp: WagmiUserProp }
         dasboardItem.getUserActionLength = data[i++].result;
         dasboardItem.getUserInfo = data[i++].result;
         dasboardItem.getSiteInfo = data[i++].result;
+        props.setDashboardItem(dasboardItem)
       }
-
     },
   })
 

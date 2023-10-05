@@ -1,7 +1,7 @@
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
 
 import { WagmiConfig, useAccount, useBalance, useConnect, useContractRead, useContractReads } from 'wagmi'
-import { arbitrum, localhost, mainnet } from 'wagmi/chains'
+import { arbitrum, localhost, mainnet, bscTestnet } from 'wagmi/chains'
 
 
 import WagmiContratDeposit from './WagmiContratDeposit'
@@ -22,7 +22,7 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-const chains = [mainnet, arbitrum, localhost]
+const chains = [mainnet, arbitrum, localhost, bscTestnet]
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
 
 // 3. Create modal
@@ -95,23 +95,17 @@ const GetWagmiStatus = (props: { wagmiUserProp: WagmiUserProp, setIsConnected: a
 // }
 
 
-const WagmiComponent = (props: { wagmiUserProp: WagmiUserProp, isConnected: boolean, setIsConnected: any, openDepositPopup: boolean, setOpenDepositPopup: any }) => {
+const WagmiComponent = (props: { wagmiUserProp: WagmiUserProp, setDashboardItem: any, isConnected: boolean, setIsConnected: any, openDepositPopup: boolean, setOpenDepositPopup: any }) => {
 
   props.wagmiUserProp.wagmiConfig = wagmiConfig;
-
-
-
-
-
-
-
 
   return (
     <WagmiConfig config={wagmiConfig}>
       <w3m-button balance="show" />
       <GetWagmiStatus wagmiUserProp={props.wagmiUserProp} setIsConnected={props.setIsConnected} />
-      <WagmiContratDeposit wagmiUserProp={props.wagmiUserProp} isConnected={props.isConnected} openDepositPopup={props.openDepositPopup} setOpenDepositPopup={props.setOpenDepositPopup}  ></WagmiContratDeposit>
-      <SetDashboardItem wagmiUserProp={props.wagmiUserProp}></SetDashboardItem>
+      {props.isConnected && <WagmiContratDeposit wagmiUserProp={props.wagmiUserProp} isConnected={props.isConnected} openDepositPopup={props.openDepositPopup} setOpenDepositPopup={props.setOpenDepositPopup}  ></WagmiContratDeposit>
+      }
+      {props.isConnected && <SetDashboardItem wagmiUserProp={props.wagmiUserProp} setDashboardItem={props.setDashboardItem}></SetDashboardItem>}
     </WagmiConfig>
   )
 

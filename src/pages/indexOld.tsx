@@ -329,7 +329,7 @@ const HomeOld = () => {
                 <Grid container xs={12} sx={{ justifyContent: 'center' }}>
                   <Grid item xs={4} >
                     <Box sx={{ textAlign: '-webkit-center'! }}>
-                      <WagmiComponent wagmiUserProp={wagmiUserProp} openDepositPopup={openDepositPopup} setOpenDepositPopup={setOpenDepositPopup}></WagmiComponent>
+                      {/* <WagmiComponent wagmiUserProp={wagmiUserProp} openDepositPopup={openDepositPopup} setOpenDepositPopup={setOpenDepositPopup}></WagmiComponent> */}
                     </Box>
                   </Grid>
                 </Grid>

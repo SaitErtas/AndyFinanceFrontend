@@ -23,7 +23,6 @@ export default function WagmiContratDeposit(props: { wagmiUserProp: WagmiUserPro
 
     return returnVal
   }
-
   const { config, error } = usePrepareContractWrite({
     address: process.env.NEXT_PUBLIC_ANDY_FINANCE_CURRENT as `0x${string}`,
     abi: ContractBnbAndyFinance.abi,
@@ -31,9 +30,14 @@ export default function WagmiContratDeposit(props: { wagmiUserProp: WagmiUserPro
     args: ["0xc2b642856f06fE467a046189cC466E8c4BEFA469"],
     value: parseUnits("" + depositValue, 18)
   })
+
   const { data, isLoading, isSuccess, write } = useContractWrite(config)
 
+  function colmn() {
+    console.log("props.wagmiUserProp : ", props.wagmiUserProp)
 
+    return ""
+  }
 
 
 
@@ -60,9 +64,9 @@ export default function WagmiContratDeposit(props: { wagmiUserProp: WagmiUserPro
               </Typography>
 
               <Typography sx={{ lineHeight: '2rem' }}>
-                {t('BNB in Your Wallet').toString() + " : " + Number(formatEther(props.wagmiUserProp.useBalance?.data?.value)).toLocaleString(undefined, { maximumFractionDigits: 5 })}
+                {props.wagmiUserProp.useBalance.isSuccess && t('BNB in Your Wallet').toString() + " : " + Number(formatEther(props.wagmiUserProp.useBalance?.data?.value)).toLocaleString(undefined, { maximumFractionDigits: 5 })}
               </Typography>
-
+              {colmn()}
               <Typography sx={{ mb: 5, lineHeight: '2rem' }}>
                 {t('Min Deposit').toString() + " : 0.00001"}
               </Typography>

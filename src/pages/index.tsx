@@ -469,7 +469,7 @@ const Home = () => {
             </Grid>
 
             {/* Affiliate Program */}
-            <Grid container sx={{ mt: 2, justifyContent: 'center' }}>
+            <Grid container sx={{ mt: 2, mb: 12, justifyContent: 'center' }}>
               <Grid item sx={{ mr: 2 }}>
                 <Card>
                   <CardContent >
@@ -560,7 +560,7 @@ const Home = () => {
               </Grid>
             </Grid>
 
-            <Grid item xs={4}>
+            {/* <Grid item xs={4}>
               <Button
                 size='large'
                 variant='contained'
@@ -597,7 +597,7 @@ const Home = () => {
               >
                 {t('Get Wagmi Values').toString()}
               </Button>
-            </Grid>
+            </Grid> */}
           </Fragment>
         </Grid>
       )}

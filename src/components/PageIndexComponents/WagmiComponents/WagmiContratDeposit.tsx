@@ -50,6 +50,15 @@ export default function WagmiContratDeposit(props: { wagmiUserProp: WagmiUserPro
   )
 
 
+  useEffect(
+    () => {
+
+      (props.openDepositPopup) && setDepositValueToInvest(.9999)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    , [props.openDepositPopup]
+  )
+
 
   return (
     <Fragment>

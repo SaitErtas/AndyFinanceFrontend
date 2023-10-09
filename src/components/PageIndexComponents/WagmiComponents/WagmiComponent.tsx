@@ -8,7 +8,7 @@ import WagmiContratDeposit from './WagmiContratDeposit'
 import { Abi } from 'viem'
 import SetDashboardItem from './SetDashboardItem'
 import { WagmiUserProp } from 'src/components/TypeOrInterface/TypeOrInterfaceClass'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 
 // 1. Get projectId
@@ -48,6 +48,15 @@ export type WagmiUseAccount = {
 const GetWagmiStatus = (props: { wagmiUserProp: WagmiUserProp, setIsConnected: any }) => {
   const { isConnecting, isDisconnected, isConnected, connector, address } = useAccount()
 
+  useEffect(() => {
+    if (isConnected) {
+      props.setIsConnected(true);
+    }
+    else {
+      props.setIsConnected(false);
+    }
+  }, [isConnected, props]);
+
   props.wagmiUserProp.useAccount.useAccount = useAccount()
 
   console.log("props.wagmiUseAccount.useAccount", props.wagmiUserProp.useAccount)
@@ -59,12 +68,7 @@ const GetWagmiStatus = (props: { wagmiUserProp: WagmiUserProp, setIsConnected: a
   // if (isConnecting) return <div>Connecting…</div>
   // if (isDisconnected) return <div>Disconnected </div>
 
-  if (isConnected) {
-    props.setIsConnected(true);
-  }
-  else {
-    props.setIsConnected(false);
-  }
+
 
   // else if (props.wagmiUseAccount.useAccount.isDisconnected) {
   // }
@@ -102,7 +106,7 @@ const WagmiComponent = (props: { wagmiUserProp: WagmiUserProp, setDashboardItem:
   return (
     <WagmiConfig config={wagmiConfig}>
       <w3m-button balance="show" />
-      <GetWagmiStatus wagmiUserProp={props.wagmiUserProp} setIsConnected={props.setIsConnected} />
+      {<GetWagmiStatus wagmiUserProp={props.wagmiUserProp} setIsConnected={props.setIsConnected} />}
       {props.isConnected && <WagmiContratDeposit wagmiUserProp={props.wagmiUserProp} isConnected={props.isConnected} openDepositPopup={props.openDepositPopup} setOpenDepositPopup={props.setOpenDepositPopup}  ></WagmiContratDeposit>
       }
       {props.isConnected && <SetDashboardItem wagmiUserProp={props.wagmiUserProp} setDashboardItem={props.setDashboardItem}></SetDashboardItem>}

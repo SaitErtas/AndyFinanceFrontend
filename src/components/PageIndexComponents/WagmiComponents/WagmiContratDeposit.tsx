@@ -1,53 +1,72 @@
 
-import { formatEther, parseEther, parseUnits } from "viem";
+import { formatEther, formatUnits, parseEther } from "viem";
 import { usePrepareContractWrite, useContractWrite, useBalance } from "wagmi";
 import { Dialog, DialogContent, Typography, TextField, Button, DialogActions, CircularProgress } from "@mui/material";
 import { Box } from "@mui/system";
 import { t } from "i18next";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { WagmiUserProp } from "src/components/TypeOrInterface/TypeOrInterfaceClass";
 import ContractBnbAndyFinance from 'src/contract/ContractBnbAndyFinance.json'
+import toast from "react-hot-toast";
 
 export default function WagmiContratDeposit(props: { wagmiUserProp: WagmiUserProp, isConnected: boolean, openDepositPopup: boolean, setOpenDepositPopup: any }) {
-
-
-
-  const [depositValue, setDepositValue] = useState(0)
-  const [referrerWallet, setReferrerWallet] = useState("0x779D0fe3C586C8492d7a04141a7F92048e4d180e")
+  const [depositValue, setDepositValue] = useState<number>(0)
+  const [referrerWallet, setReferrerWallet] = useState(props.wagmiUserProp.useAccount.useAccount.address)
   const [isLoadingForDeposit, setIsLoadingForDeposit] = useState(false)
 
-
-  async function setDepositValueToInvest(ratio: number) {
-    const returnVal = (Number(formatEther(props.wagmiUserProp.useBalance.data.value)) * ratio).toFixed(5)
-    setDepositValue(Number(returnVal))
-
-    return returnVal
-  }
   const { config, error } = usePrepareContractWrite({
     address: process.env.NEXT_PUBLIC_ANDY_FINANCE_CURRENT as `0x${string}`,
     abi: ContractBnbAndyFinance.abi,
     functionName: 'invest',
-    args: ["0xc2b642856f06fE467a046189cC466E8c4BEFA469"],
-    value: parseUnits("" + depositValue, 18)
+    args: [props.wagmiUserProp.useAccount.useAccount.address],
+    value: parseEther("" + depositValue, "wei")
   })
 
-  const { data, isLoading, isSuccess, write } = useContractWrite(config)
+  const { data, isLoading, isSuccess, write, isError } = useContractWrite(config)
 
   function colmn() {
-    console.log("props.wagmiUserProp : ", props.wagmiUserProp)
+    //console.log("props.wagmiUserProp : ", props.wagmiUserProp)
 
     return ""
   }
+
+  function setDepositValueToInvest(ratio: number): void {
+    const returnVal = (Number(formatEther(props.wagmiUserProp.useBalance.data.value)) * ratio).toFixed(5)
+    setDepositValue(Number(returnVal))
+  }
+
+
+  useEffect(
+    () => {
+      function DepositOperationCompleted(): void {
+        setIsLoadingForDeposit(false);
+        props.setOpenDepositPopup(false);
+        console.log("Test");
+      }
+      (isSuccess || isError) && DepositOperationCompleted()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    , [isSuccess, isError]
+  )
 
 
 
   return (
     <Fragment>
+      <Typography variant='h5' >
+        {props.isConnected && isLoading && !props.isConnected && "Check Wallet"}
+      </Typography>
+      <Typography variant='body2' sx={{}}>
+        {props.isConnected && isSuccess && "Successful Transaction Hash:"}
+      </Typography>
+      <Typography variant='body2' sx={{ color: 'success.main' }}>
+        {props.isConnected && isSuccess && data?.hash}
+      </Typography>
+      {/* <div> {"" + isSuccess + " - " + isError}</div> */}
 
-      {props.isConnected && isLoading && !props.isConnected && <div>Check Wallet</div>}
-      {props.isConnected && isSuccess && <div>Transaction: {JSON.stringify(data)}</div>}
 
-      {props.isConnected &&
+      {
+        props.isConnected &&
 
         <Dialog
           fullWidth
@@ -117,7 +136,6 @@ export default function WagmiContratDeposit(props: { wagmiUserProp: WagmiUserPro
               <Button variant='contained' disabled={!write} sx={{ width: "100%" }} color='primary' onClick={async () => {
                 setIsLoadingForDeposit(true);
                 await write?.();
-                setIsLoadingForDeposit(false);
               }
               }>
                 {t('Deposit').toString()}
@@ -130,10 +148,20 @@ export default function WagmiContratDeposit(props: { wagmiUserProp: WagmiUserPro
           </Typography> */}
 
 
+
           </DialogActions>
+          {error && (<Fragment>
+            <Typography variant='body1' sx={{ textAlign: 'center', color: "error.main" }}>
+              {"Error :  Please check your parameters"}
+            </Typography>
+            <Typography variant='body2' sx={{ textAlign: 'left' }}>
+              {"Details : " + error}
+            </Typography>
+          </Fragment>
+          )}
         </Dialog>
 
       }
-    </Fragment>
+    </Fragment >
   )
 }

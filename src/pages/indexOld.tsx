@@ -7,7 +7,7 @@
 
 // ** React Imports
 import { useState, useEffect, Fragment, ReactNode } from 'react'
-import { BrowserProvider, Contract as ContractEthers, formatEther, parseUnits } from 'ethers'
+import { BrowserProvider, Contract as ContractEthers, formatEther, parseEther } from 'ethers'
 import ContractBnbAndyFinance from 'src/contract/ContractBnbAndyFinance.json'
 import { useTranslation } from 'react-i18next'
 import { CircularProgress, Button, Grid, TextField, Box, Typography, Card, CardContent, Dialog, DialogActions, DialogContent } from '@mui/material'
@@ -86,7 +86,7 @@ const HomeOld = () => {
   const [openVersionPopup, setOpenVersionPopup] = useState(false)
   const [openDepositPopup, setOpenDepositPopup] = useState(false)
   const [depositValue, setDepositValue] = useState(0)
-  const [referrerWallet, setReferrerWallet] = useState("0x779D0fe3C586C8492d7a04141a7F92048e4d180e")
+  const [referrerWallet, setReferrerWallet] = useState("")
 
 
 
@@ -190,7 +190,7 @@ const HomeOld = () => {
 
 
   async function investEtherJs() {
-    const etherValue = parseUnits("" + depositValue, 18);
+    const etherValue = parseEther("" + depositValue);
 
     console.log(etherValue);
     const { contract } = stateEther

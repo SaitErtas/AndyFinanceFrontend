@@ -7,14 +7,13 @@
 
 // ** React Imports
 import { useState, useEffect, Fragment, ReactNode } from 'react'
-import { BrowserProvider, Contract as ContractEthers, formatEther, parseUnits } from 'ethers'
-import ContractBnbAndyFinance from 'src/contract/ContractBnbAndyFinance.json'
 import { useTranslation } from 'react-i18next'
-import { CircularProgress, Button, Grid, TextField, Box, Typography, Card, CardContent, Dialog, DialogActions, DialogContent } from '@mui/material'
+import { CircularProgress, Button, Grid, TextField, Box, Typography, Card, CardContent } from '@mui/material'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import CustomChip from 'src/@core/components/mui/chip'
 import WagmiComponent from 'src/components/PageIndexComponents/WagmiComponents/WagmiComponent'
 import { WagmiUserProp } from 'src/components/TypeOrInterface/TypeOrInterfaceClass'
+import { formatEther } from 'viem'
 
 // ** Styled Component for the wrapper of all the features of a plan
 
@@ -46,7 +45,6 @@ const Home = () => {
     getUserInfo: null,
     getSiteInfo: null,
   })
-
 
   const wagmiUserProp = {
     chains: {}, useAccount: {}, wagmiConfig: {}, useBalance: {}, useContractRead: {}
@@ -160,7 +158,7 @@ const Home = () => {
           <Grid item xs={12} >
             <Card>
               <CardContent >
-                <Grid container xs={12} sx={{ justifyContent: 'center' }}>
+                <Grid container sx={{ justifyContent: 'center' }}>
                   <Grid item xs={4} >
                     <Box sx={{ textAlign: '-webkit-center'! }}>
                       <WagmiComponent wagmiUserProp={wagmiUserProp} isConnected={isConnected} openDepositPopup={openDepositPopup}
